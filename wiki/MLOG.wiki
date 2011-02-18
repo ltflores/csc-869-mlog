@@ -4,10 +4,10 @@
 
 Team MLOG
 
-*M*arkus
-*L*orenzo
-*O*ren
-*G*avin
+ *M* arkus
+ *L* orenzo
+ *O* ren
+ *G* avin
 
 
 We will try and record all team activity here, and use the uploads for interesting papers and code. 
@@ -18,4 +18,3 @@ Its subversion source control btw
 = Details =
 
 ProjectProposal
-
