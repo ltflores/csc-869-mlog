@@ -1,0 +1,39 @@
+#Draft Project Proposal Page
+
+_We will try and edit this page to create our proposal - due friday._
+
+Assignment Description:
+ Submit a one-page term project proposal that includes the following sections: (1) team members; (2) the project selected and a general description based on your understanding at the time; (3) expected objectives; and (4) workload distribution among team members
+----
+= Team Members =
+ * Markus Neubrand
+ * Oren
+ * Gavin Dodd
+ * Lorenzo Flores
+
+= Project Description =
+Text Mining/Sentiment Analysis/Opinion Mining of Twitter tweets to determine a users latent attributes, particularly political affiliations. 
+
+We will base this project on the paper Classifying Latent User Attributes in Twitter by Delip Rao et al.
+
+It will be a project written in Java, and will be based on the bag of words method for extracting features. 
+
+We will attempt to compare several different classifiers, such as Naive Bayesian, SVM, K-NN, and Neural Net for this project, all running on the same data set to see which one has the better performance. 
+ 
+
+= Objectives =
+
+ * research / implement text crawler for retrieving tweets, and tweeter information.
+ * implement a data cleanser to parse raw tweets information into words/phrases/features using data mining algorithm.
+ * may have to manually create a training dataset, or manually label tweets with classes (republican, independant, democrat, unknown...).
+ * decide on a set of latent attributes that we want to try to identify.
+ * implement 4 different simple classifiers for comparison of results. 
+ * use k-Fold Cross Validation for training and evaluation of each classifier. 
+
+
+= Workload Distribution =
+ * Web Crawler - 2 teams of 2, one team will implement the web scraper/tweet retreiver. The other team will implement the parser and datastore based on c4.5 format.
+   (First we need to see if we can already use a service/code to do this for us. For the sake of the project we could assume we'll implement it...Lorenzo)
+
+ * Data Mining Algorithm/ Classifiers - Use Weka to provide basic datamining/classifiers code. Each team member will implement and test a single classifier and produce results time permitting - if not, we will just test 2 classifiers
+ * Data Analysis - Use Weka for producing various statistical methods for analysis of the dataset. This is to include some kind of data visualization if possible.
