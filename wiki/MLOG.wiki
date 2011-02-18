@@ -4,10 +4,10 @@
 
 Team MLOG
 
- *Markus
- *Lorenzo
- *Oren
- *Gavin
+ * Markus
+ * Lorenzo
+ * Oren
+ * Gavin
 
 
 We will try and record all team activity here, and use the uploads for interesting papers and code. 
