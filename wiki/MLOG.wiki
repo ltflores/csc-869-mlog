@@ -19,4 +19,4 @@ Its subversion source control btw
 
 ProjectProposal
 
-[ Project Implementation Discussion ]
+ProjectImplementationDiscussion
