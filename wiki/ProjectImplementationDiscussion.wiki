@@ -1,0 +1,23 @@
+#Project Implementation Discussion
+
+= Details =
+
+I’ve been looking at the twitter API, and there’s not much personal information available other than the little BIO section. We can try and mine this for interesting political features, but it isn’t very much to go on. 
+
+At least we know the political affiliations of politicians from tweetcongress, we can then get the list of followers, and download their tweets and use those as training data for our classifier.
+
+Once our classifier(s) is trained, we can then try and classify test tweets using 10-Fold cross validation.
+
+Here’s the API link for the Users-Show
+
+[http://apiwiki.twitter.com/w/page/22554755/Twitter-REST-API-Method:-users%C2%A0show]
+
+and here is the main api doc page. It uses REST
+
+[http://apiwiki.twitter.com/w/page/22554679/Twitter-API-Documentation]
+
+It is very nicely documented, so wouldn’t be difficult to implement, however they also give us a list of open source implementations, and this one looks pretty good to me…
+
+[http://twitter4j.org/en/code-examples.html]
+
+Its Java – which I find to much quicker to develop in than c or c++, and much more forgiving due to garbage collection. 
