@@ -35,7 +35,7 @@ public class Twitterscraper {
 	    demOutput.mkdir();
 	    
 	    outputTweetsOfUser(republicans, repOutput);
-	    //outputTweetsOfUser(democrats, demOutput);
+	    outputTweetsOfUser(democrats, demOutput);
 	}
 	
 	private static void outputTweetsOfUser(List<String[]> lines, File outputDir) throws IOException {
