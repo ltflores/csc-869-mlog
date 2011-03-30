@@ -8,28 +8,48 @@
 
 === Bag of Words/No stemming/Stop word removal ===
 10-fold Cross-validation
+
 Correctly Classified Instances       17594               76.7828 %
+
 Incorrectly Classified Instances      5320               23.2172 %
+
 Kappa statistic                          0.5247
+
 Mean absolute error                      0.3869
+
 Root mean squared error                  0.4321
+
 Relative absolute error                 78.4973 %
+
 Root relative squared error             87.0438 %
+
 Coverage of cases (0.95 level)          99.7687 %
+
 Mean rel. region size (0.95 level)      96.6025 %
+
 Total Number of Instances            22914
 
 === Bag of Words/Stemming/Stop word removal ===
 10-fold Cross-validation
+
 Correctly Classified Instances       17241               74.5944 %
+
 Incorrectly Classified Instances      5872               25.4056 %
+
 Kappa statistic                          0.4894
+
 Mean absolute error                      0.2542
+
 Root mean squared error                  0.3567
+
 Relative absolute error                 76.0222 %
+
 Root relative squared error             87.2371 %
+
 Coverage of cases (0.95 level)          99.4419 %
+
 Mean rel. region size (0.95 level)      63.6597 %
+
 Total Number of Instances            23113     
 
 = All tweets of a person =
@@ -38,13 +58,23 @@ Total Number of Instances            23113
 
 === Bag of Words/No stemming/Stop word removal ===
 10-fold Cross-validation
+
 Correctly Classified Instances         219               92.0168 %
+
 Incorrectly Classified Instances        19                7.9832 %
+
 Kappa statistic                          0.8411
+
 Mean absolute error                      0.0827
+
 Root mean squared error                  0.2802
+
 Relative absolute error                 16.6784 %
+
 Root relative squared error             56.2754 %
+
 Coverage of cases (0.95 level)          92.8571 %
+
 Mean rel. region size (0.95 level)      51.2605 %
+
 Total Number of Instances              238     
