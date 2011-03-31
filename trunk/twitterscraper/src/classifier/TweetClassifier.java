@@ -36,7 +36,7 @@ public class TweetClassifier {
 	public static boolean debug = false;
 	
 	private enum ClassifierType {
-	    BAYES
+	    BAYES, J48
 	}
 	
 	private enum LoaderType {
@@ -88,6 +88,8 @@ public class TweetClassifier {
     	
     	if(classifier == null) {
     		classifier = ClassifierType.BAYES;
+    	} else if (classifier.equals("J48")){
+    		classifier = ClassifierType.J48;
     	}
     	System.out.println("Using -classifier=" + classifier);
     	
@@ -222,6 +224,8 @@ public class TweetClassifier {
 			case BAYES:
 				classifier = new NaiveBayes();
 				break;
+			case J48:
+				classifier = new J48();
 			}
 			Evaluation eval = new Evaluation(data);
 			for (int n = 0; n < k; n++) {
