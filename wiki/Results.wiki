@@ -34,7 +34,20 @@
 ||Mean rel. region size (0.95 level)||63.6597 %||
 ||Total Number of Instances||23113||
 
+== J48 ==
+10-fold Cross-validation
+||Correctly Classified Instances||22852||99.7294 %||
+||Incorrectly Classified Instances||62||0.2706 %||
+||Kappa statistic||0.9945||
+||Mean absolute error||0.0049||
+||Root mean squared error||0.0516||
+||Relative absolute error||0.9955 %||
+||Root relative squared error||10.4009 %||
+||Coverage of cases (0.95 level)||99.7382 %||
+||Mean rel. region size (0.95 level)||50.0087 %||
+||Total Number of Instances||22914||
 
+*NOTE:*I'm suspicious about these results. For starters, my data directory had the all_democrats.txt and all_republicans.txt files at the root level. Also, using J48 took around 12 hours to run on my Core2 duo w/ 6GB of RAM. I'm currently re-running this and plan on running with the TextDirectoryLoader. -Lorenzo
 
 
 = All tweets of a person =
