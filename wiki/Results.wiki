@@ -35,7 +35,7 @@
 ||Total Number of Instances||23113||
 
 == J48 ==
-=== Bag of Words/No stemming/Stop word removal ===
+=== J48: Bag of Words/No stemming/Stop word removal ===
 10-fold Cross-validation
 ||Correctly Classified Instances||22852||99.7294 %||
 ||Incorrectly Classified Instances||62||0.2706 %||
