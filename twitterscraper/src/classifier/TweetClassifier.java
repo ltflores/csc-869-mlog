@@ -85,7 +85,6 @@ public class TweetClassifier {
     			modelFileName = arg.substring("-save=".length());
     		} else if(arg.equals("-noeval")){
     			evaluate = false;
-    			System.out.println("Not evaluating");
     		}
     	}
     	
