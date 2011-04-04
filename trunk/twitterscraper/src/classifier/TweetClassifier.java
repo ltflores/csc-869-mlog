@@ -61,6 +61,8 @@ public class TweetClassifier {
     	StemmerType stemmer = null;
     	int k = 10;
     	boolean stopwords = true;
+    	boolean evaluate = true;
+    	String modelFileName = null;
     	
     	for(String arg : args) {
     		if(arg.startsWith("-in=")) {
@@ -79,6 +81,11 @@ public class TweetClassifier {
     			stopwords = false;
     		} else if(arg.startsWith("-stemmer=")) {
     			stemmer = StemmerType.valueOf(arg.substring("-stemmer=".length()));
+    		} else if(arg.startsWith("-save=")){
+    			modelFileName = arg.substring("-save=".length());
+    		} else if(arg.equals("-noeval")){
+    			evaluate = false;
+    			System.out.println("Not evaluating");
     		}
     	}
     	
@@ -112,11 +119,22 @@ public class TweetClassifier {
     		stemmer = StemmerType.NONE;
     	}
     	System.out.println("Using -stemmer=" + stemmer);
-    	
 
         TweetClassifier tweetclass = new TweetClassifier();
         Instances tweets = tweetclass.loadTweets(in, loader, tokenizer, stemmer, stopwords);
-        tweetclass.evaluateClassifier(tweets, classifier, k);
+        
+        if (evaluate){
+        	tweetclass.evaluateClassifier(tweets, classifier, k);
+        } else {
+        	System.out.println("Not evaluating");
+        }
+        
+        if(modelFileName == null) {
+    		System.out.println("Not saving model");
+    	} else {
+    		System.out.println("Using -save=" + modelFileName);
+    		tweetclass.saveClassifier(tweets, classifier, modelFileName);
+    	}
 
     }
 
@@ -257,6 +275,25 @@ public class TweetClassifier {
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, null, e);
 		}
+	}
+	
+	public void saveClassifier(Instances data,
+			ClassifierType classifierType, String modelFileName){
+		
+		try {
+			AbstractClassifier classifier = null;
+			switch (classifierType) {
+			case BAYES:
+				classifier = new NaiveBayes();
+				break;
+			case J48:
+				classifier = new J48();
+			}
+			classifier.buildClassifier(data);
+			weka.core.SerializationHelper.write(modelFileName, classifier);
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, null, e);
+		}		
 	}
 
 }
