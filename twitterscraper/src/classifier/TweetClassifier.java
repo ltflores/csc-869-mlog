@@ -18,7 +18,6 @@ import weka.classifiers.trees.J48;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
-import weka.core.converters.TextDirectoryLoader;
 import weka.core.stemmers.SnowballStemmer;
 import weka.core.tokenizers.NGramTokenizer;
 import weka.core.tokenizers.Tokenizer;
@@ -155,15 +154,19 @@ public class TweetClassifier {
 	public Instances loadTweets(String directoryPath, LoaderType loaderType,
 			TokenizerType tokenizerType, StemmerType stemmer, boolean stopwords) {
 		try {
-			TextDirectoryLoader loader = null;
+			CustmTextDirectoryLoader loader = null;
 			switch (loaderType) {
 			case SENTENCE:
 				loader = new SentenceBasedTextDirectoryLoader();
 				break;
 			case FILE:
-				loader = new TextDirectoryLoader();
+				//loader = new TextDirectoryLoader();
+				loader = new CustmTextDirectoryLoader();
 				break;
 			}
+			
+			//tell the directory loader to ignore output file names
+			loader.setOutputFilename(false);
 
 			File dir = new File(directoryPath);
 			Instances dataRaw;

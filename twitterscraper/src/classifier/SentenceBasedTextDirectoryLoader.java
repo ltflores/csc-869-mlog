@@ -40,7 +40,6 @@ import java.util.logging.Logger;
 
 import weka.core.DenseInstance;
 import weka.core.Instances;
-import weka.core.converters.TextDirectoryLoader;
 
 /**
  * <!-- globalinfo-start --> Loads all text files in a directory and uses the
@@ -90,7 +89,7 @@ import weka.core.converters.TextDirectoryLoader;
  * @version $Revision: 6766 $
  * @see Loader
  */
-public class SentenceBasedTextDirectoryLoader extends TextDirectoryLoader {
+public class SentenceBasedTextDirectoryLoader extends CustmTextDirectoryLoader {
 
 	private final Logger logger = Logger.getLogger(SentenceBasedTextDirectoryLoader.class.getName());
 	
