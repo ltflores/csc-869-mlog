@@ -172,7 +172,7 @@ public class TweetClassifier {
 			//By setting this to true, we loose instance-senator mapping
 			//but at the moment, it's more important that these attributes
 			//don't get added.
-			loader.setOutputFilename(true);
+			loader.setOutputFilename(false);
 			
 			loader.setDirectory(dir);
 
