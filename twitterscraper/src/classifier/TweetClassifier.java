@@ -169,9 +169,10 @@ public class TweetClassifier {
 			Instances dataRaw;
 			// make sure we remember where the attribute came from
 			//loader.setOutputFilename(true);
-			//Not sure setOutputFilename works how we originally thought,
-			//according to to documentation, it adds filename as attribute.
-			loader.setOutputFilename(false);
+			//By setting this to true, we loose instance-senator mapping
+			//but at the moment, it's more important that these attributes
+			//don't get added.
+			loader.setOutputFilename(true);
 			
 			loader.setDirectory(dir);
 
