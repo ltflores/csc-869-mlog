@@ -164,14 +164,15 @@ public class TweetClassifier {
 				loader = new CustmTextDirectoryLoader();
 				break;
 			}
-			
-			//tell the directory loader to ignore output file names
-			loader.setOutputFilename(false);
 
 			File dir = new File(directoryPath);
 			Instances dataRaw;
 			// make sure we remember where the attribute came from
-			loader.setOutputFilename(true);
+			//loader.setOutputFilename(true);
+			//Not sure setOutputFilename works how we originally thought,
+			//according to to documentation, it adds filename as attribute.
+			loader.setOutputFilename(false);
+			
 			loader.setDirectory(dir);
 
 			dataRaw = loader.getDataSet();
