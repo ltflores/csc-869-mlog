@@ -120,6 +120,8 @@ public class TweetClassifier {
     		stemmer = StemmerType.NONE;
     	}
     	System.out.println("Using -stemmer=" + stemmer);
+    	System.out.println("Using -k=" + k);
+    	System.out.println("Using -features=" + features);
 
         TweetClassifier tweetclass = new TweetClassifier();
         Instances tweets = tweetclass.loadTweets(in, loader, tokenizer, stemmer, stopwords, features);
@@ -129,6 +131,7 @@ public class TweetClassifier {
         } else {
         	System.out.println("Not evaluating");
         }
+        
         
         if(modelFileName == null) {
     		System.out.println("Not saving model");
