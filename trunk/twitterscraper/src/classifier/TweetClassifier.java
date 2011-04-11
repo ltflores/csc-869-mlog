@@ -59,6 +59,7 @@ public class TweetClassifier {
     	TokenizerType tokenizer = null;
     	StemmerType stemmer = null;
     	int k = 10;
+    	int features = 1000;
     	boolean stopwords = true;
     	boolean evaluate = true;
     	String modelFileName = null;
@@ -84,6 +85,8 @@ public class TweetClassifier {
     			modelFileName = arg.substring("-save=".length());
     		} else if(arg.equals("-noeval")){
     			evaluate = false;
+    		} else if(arg.startsWith("-features=")){
+    			features = Integer.parseInt(arg.substring("-features=".length()));
     		}
     	}
     	
@@ -100,7 +103,7 @@ public class TweetClassifier {
     	System.out.println("Using -classifier=" + classifier);
     	
     	if(loader == null) {
-    		loader = LoaderType.SENTENCE;
+    		loader = LoaderType.FILE;
     	}
     	System.out.println("Using -loader=" + loader);
     	
@@ -119,7 +122,7 @@ public class TweetClassifier {
     	System.out.println("Using -stemmer=" + stemmer);
 
         TweetClassifier tweetclass = new TweetClassifier();
-        Instances tweets = tweetclass.loadTweets(in, loader, tokenizer, stemmer, stopwords);
+        Instances tweets = tweetclass.loadTweets(in, loader, tokenizer, stemmer, stopwords, features);
         
         if (evaluate){
         	tweetclass.evaluateClassifier(tweets, classifier, k);
@@ -152,7 +155,7 @@ public class TweetClassifier {
      * Creates an Instances using TextDirectoryLoader, with each of the
      */
 	public Instances loadTweets(String directoryPath, LoaderType loaderType,
-			TokenizerType tokenizerType, StemmerType stemmer, boolean stopwords) {
+			TokenizerType tokenizerType, StemmerType stemmer, boolean stopwords, int features) {
 		try {
 			CustmTextDirectoryLoader loader = null;
 			switch (loaderType) {
@@ -183,6 +186,7 @@ public class TweetClassifier {
 
 			StringToWordVector filter = new StringToWordVector();
 			filter.setInputFormat(dataRaw);
+			filter.setLowerCaseTokens(true);
 
 			// set the tokenizer
 			Tokenizer tokenizer = null;
@@ -203,6 +207,9 @@ public class TweetClassifier {
 
 			// set the stop words file.
 			filter.setUseStoplist(stopwords);
+			
+			//set feature space size
+			filter.setWordsToKeep(features);
 
 			Instances dataSentences = Filter.useFilter(dataRaw, filter);
 			filter.setInputFormat(dataSentences);
@@ -251,20 +258,7 @@ public class TweetClassifier {
 				classifier = new J48();
 			}
 			Evaluation eval = new Evaluation(data);
-			for (int n = 0; n < k; n++) {
-				Instances train = data.trainCV(k, n);
-				Instances test = data.testCV(k, n);
-				// the above code is used by the StratifiedRemoveFolds filter,
-				// the
-				// code below by the Explorer/Experimenter:
-				// Instances train = randData.trainCV(folds, n, rand);
-
-				// build and evaluate classifier
-				Classifier copy = AbstractClassifier.makeCopy(classifier);
-				copy.buildClassifier(train);
-				eval.evaluateModel(copy, test);
-			}
-			// nbayes.buildClassifier(dataRaw);
+			eval.crossValidateModel(classifier, data, k, new Random(1));
 
 			// output evaluation
 			System.out.println();
