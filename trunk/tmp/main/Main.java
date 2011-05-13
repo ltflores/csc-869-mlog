@@ -23,9 +23,19 @@ public class Main {
         ToolFactory toolFactory = new ToolFactory(arguments);
         switch (arguments.getTarget()) {
             case ScrapeTweetInterval:
-                TweetIntervalScraper intervalScraper
+                TweetIntervalScraper intervalScraper = null;
+                if (arguments.getPositiveAttitude()!=null) {
+                    intervalScraper
+                            = new TweetIntervalScraper(arguments.getSinceDate(),
+                                                       arguments.getUntilDate(),
+                                                       arguments.getPositiveAttitude().booleanValue());
+                } else {
+                    intervalScraper
                         = new TweetIntervalScraper(arguments.getSinceDate(),
                                                    arguments.getUntilDate());
+                }
+                intervalScraper.setPerUserLimit(arguments.getPerUserLimit());
+                intervalScraper.setWithRetweets(arguments.getWithRetweets());
                 for (String screenName : arguments.getScreenNames()) {
                     String[] tweets = null;
                     while (true) {

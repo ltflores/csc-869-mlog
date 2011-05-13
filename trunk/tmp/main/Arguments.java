@@ -26,10 +26,14 @@ public class Arguments {
     private static final String ARG_DATA = "--data=";
     private static final String ARG_TARGET = "--target=";
     private static final String ARG_DEBUG_ALL = "--debug=all";
-    private static final String ARG_SCREEN_NAME_PATH = "--screen-name-path";
+    private static final String ARG_SCREEN_NAME_PATH = "--screen-name-path=";
     private static final String ARG_SCREEN_NAME = "--screen-name=";
     private static final String ARG_SINCE_DATE = "--since-date=";
     private static final String ARG_UNTIL_DATE = "--until-date=";
+    private static final String ARG_PER_USER_LIMIT = "--per-user-limit=";
+    private static final String ARG_POSITIVE = "--positive";
+    private static final String ARG_NEGATIVE = "--negative";
+    private static final String ARG_NO_RETWEETS = "--no-retweets";
 
 
     // defaults:
@@ -40,6 +44,9 @@ public class Arguments {
     private DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
     private Date sinceDate = new Date(0L); // the big bang
     private Date untilDate = new Date(); // now
+    private int perUserLimit = -1; // no limit
+    private Boolean positiveAttitude = null; // no polarity
+    private boolean withRetweets = true;
 
     
     public Arguments(String[] args) {
@@ -69,7 +76,6 @@ public class Arguments {
                                                File.pathSeparator);
                 Set<String> fileNames = new HashSet<String>();
                 fileNames.addAll(this.parsePathList(paths));
-                // for (String filename : this.parsePathList(paths)) {System.out.println(filename);}
                 this.screenNames.addAll(this.parseScreenNameFiles(fileNames));
             } else if (arg.startsWith(ARG_SCREEN_NAME)) {
                 String screenNameList = arg.substring(ARG_SCREEN_NAME.length());
@@ -94,6 +100,15 @@ public class Arguments {
                             "could not parse until-date: " + dateStr);
                     this.untilDate = new Date(); // resotring default value
                 }
+            } else if (arg.startsWith(ARG_PER_USER_LIMIT)) {
+                this.perUserLimit
+                        = Integer.parseInt(arg.substring(ARG_PER_USER_LIMIT.length()));
+            } else if (arg.startsWith(ARG_POSITIVE)) {
+                this.positiveAttitude = true;
+            } else if (arg.startsWith(ARG_NEGATIVE)) {
+                this.positiveAttitude = false;
+            } else if (arg.startsWith(ARG_NO_RETWEETS)) {
+                this.withRetweets = false;
             } else {
                 Logger.log(Logger.Level.ERROR, "unknown argument: "+arg);
                 System.exit(1);
@@ -149,6 +164,12 @@ public class Arguments {
         return result;
     }
 
+    /**
+     * extracting twitter screen names of the form @someone
+     * from each of the given files
+     * @param fileNames
+     * @return
+     */
     private Collection<String> parseScreenNameFiles(Collection<String> fileNames) {
         Pattern screenNamePattern = Pattern.compile("@\\w+");
         Set<String> result = new HashSet<String>();
@@ -208,15 +229,49 @@ public class Arguments {
         return this.logLevel;
     }
 
+    /**
+     * retrieve twitter screen names collected from all paths, files and command line strings
+     * @return
+     */
     public Collection<String> getScreenNames() {
         return this.screenNames;
     }
 
+    /**
+     *
+     * @return
+     */
     public Date getSinceDate() {
         return this.sinceDate;
     }
 
+    /**
+     *
+     * @return
+     */
     public Date getUntilDate() {
         return this.untilDate;
+    }
+
+    /**
+     * returns true/false if scraping positive/negative attitude tweets,
+     * or null for no polarity.
+     * @return
+     */
+    public Boolean getPositiveAttitude() {
+        return this.positiveAttitude;
+    }
+
+    /**
+     * returns limit for scraped tweets/friends per user,
+     * or a negative integer if unlimited.
+     * @return
+     */
+    public int getPerUserLimit() {
+        return this.perUserLimit;
+    }
+
+    public boolean getWithRetweets() {
+        return this.withRetweets;
     }
 }
