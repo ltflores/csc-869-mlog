@@ -89,7 +89,7 @@ import weka.core.Instances;
  * @version $Revision: 6766 $
  * @see Loader
  */
-public class SentenceBasedTextDirectoryLoader extends CustmTextDirectoryLoader {
+public class SentenceBasedTextDirectoryLoader extends CustomTextDirectoryLoader {
 
 	private final Logger logger = Logger.getLogger(SentenceBasedTextDirectoryLoader.class.getName());
 	
