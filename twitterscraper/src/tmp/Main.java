@@ -1,7 +1,9 @@
 package tmp;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Scanner;
 import tmp.twitter.FriendScraper;
@@ -35,8 +37,21 @@ public class Main {
                 }
                 intervalScraper.setPerUserLimit(arguments.getPerUserLimit());
                 intervalScraper.setWithRetweets(arguments.getWithRetweets());
+                
                 for (String screenName : arguments.getScreenNames()) {
                     String[] tweets = null;
+                    
+                    BufferedWriter output=null;
+                    
+                    if (arguments.outputToDir()){
+                    	try {
+                    		String fileName = screenName;
+                	    	output = new BufferedWriter(new FileWriter(arguments.getOutputDir().getAbsolutePath() + File.separator + fileName));
+                    	} catch (Exception e){
+                        	e.printStackTrace();
+                        }
+                    }
+                    
                     while (true) {
                         try {
                             tweets = intervalScraper.scrape(screenName);
@@ -71,6 +86,8 @@ public class Main {
                             }
                         }
                     }
+                    
+                    //time to filter/print/write tweets
                     if (tweets!=null && tweets.length>0) {
                         for (String tweet : tweets) {
                             if (tweet == null) {
@@ -78,10 +95,26 @@ public class Main {
                             } else if (tweet.isEmpty()) {
                                 Logger.log(Logger.Level.ERROR, "empty tweet for: " + screenName);
                             } else {
+                            	if (arguments.outputToDir()){
+                            		try {
+                            			output.write(tweet+"\n");
+                            		} catch(Exception e) {
+                            			e.printStackTrace();
+                            		}
+                            	}
                                 System.out.println(tweet);
                             }
                         }
                     }
+                    if (arguments.outputToDir()){
+                    	try {
+                    		output.flush();
+                	    	output.close();
+                    	} catch(Exception e){
+                    		e.printStackTrace();
+                    	}
+                    }
+                    
                 }
                 break;
             case ScrapeFriends:
