@@ -14,7 +14,10 @@ import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.evaluation.NominalPrediction;
+import weka.classifiers.meta.FilteredClassifier;
 import weka.classifiers.trees.J48;
+import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
@@ -23,6 +26,7 @@ import weka.core.tokenizers.NGramTokenizer;
 import weka.core.tokenizers.Tokenizer;
 import weka.core.tokenizers.WordTokenizer;
 import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 /**
@@ -160,14 +164,14 @@ public class TweetClassifier {
 	public Instances loadTweets(String directoryPath, LoaderType loaderType,
 			TokenizerType tokenizerType, StemmerType stemmer, boolean stopwords, int features) {
 		try {
-			CustmTextDirectoryLoader loader = null;
+			CustomTextDirectoryLoader loader = null;
 			switch (loaderType) {
 			case SENTENCE:
 				loader = new SentenceBasedTextDirectoryLoader();
 				break;
 			case FILE:
 				//loader = new TextDirectoryLoader();
-				loader = new CustmTextDirectoryLoader();
+				loader = new CustomTextDirectoryLoader();
 				break;
 			}
 
@@ -178,7 +182,7 @@ public class TweetClassifier {
 			//By setting this to true, we loose instance-senator mapping
 			//but at the moment, it's more important that these attributes
 			//don't get added.
-			loader.setOutputFilename(false);
+			loader.setOutputFilename(true);
 			
 			loader.setDirectory(dir);
 
@@ -213,13 +217,13 @@ public class TweetClassifier {
 			
 			//set feature space size
 			filter.setWordsToKeep(features);
+			
+			filter.setAttributeIndicesArray(new int[] {0});
 
 			Instances dataSentences = Filter.useFilter(dataRaw, filter);
 			filter.setInputFormat(dataSentences);
-			Instances dataSentenceAndWordTokenized = Filter.useFilter(
-					dataSentences, filter);
-
-			for (Instance inst : dataSentenceAndWordTokenized) {
+			
+			for (Instance inst : dataSentences) {
 				if (debug) {
 					System.out.println(inst.classAttribute().value(
 							inst.classIndex()));
@@ -227,14 +231,14 @@ public class TweetClassifier {
 			}
 
 			if (debug) {
-				System.out.println(dataSentenceAndWordTokenized);
+				System.out.println(dataSentences);
 			}
 
 			// dataBOW.stratify(k);
 			int seed = 29390;
 
 			Random rand = new Random(seed); // create seeded number generator
-			Instances randData = new Instances(dataSentenceAndWordTokenized); // create
+			Instances randData = new Instances(dataSentences); // create
 																				// copy
 																				// of
 																				// original
@@ -260,8 +264,34 @@ public class TweetClassifier {
 			case J48:
 				classifier = new J48();
 			}
+			
+			classifier.setDebug(true);
+			
+			//Create remove file name filter
+			Remove remove = new Remove();
+			remove.setAttributeIndicesArray(new int[] {0});
+			remove.setInputFormat(data);
+			
+			FilteredClassifier filtered = new FilteredClassifier();
+			filtered.setClassifier(classifier);
+			filtered.setFilter(remove);
+
+			// Run cross validation
+			// perform cross-validation
 			Evaluation eval = new Evaluation(data);
-			eval.crossValidateModel(classifier, data, k, new Random(1));
+			for (int n = 0; n < k; n++) {
+				Instances train = data.trainCV(k, n);
+				Instances test = data.testCV(k, n);
+				// the above code is used by the StratifiedRemoveFolds filter,
+				// the
+				// code below by the Explorer/Experimenter:
+				// Instances train = randData.trainCV(folds, n, rand);
+
+				// build and evaluate classifier
+				Classifier clsCopy = AbstractClassifier.makeCopy(filtered);
+				clsCopy.buildClassifier(train);
+				eval.evaluateModel(clsCopy, test);
+			}
 
 			// output evaluation
 			System.out.println();
@@ -273,6 +303,16 @@ public class TweetClassifier {
 			System.out.println();
 			System.out.println(eval.toSummaryString("=== " + k
 					+ "-fold Cross-validation ===", false));
+			
+			// Check which instances were falsely classified
+			FastVector predictions = eval.predictions();
+			for (int i = 0; i < predictions.size(); i++) {
+				NominalPrediction prediction = (NominalPrediction) predictions.get(i);
+				if(prediction.actual()!=prediction.predicted()) {
+					System.out.println("Falsely classified " + data.get(i).stringValue(0));
+				}
+			}
+
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, null, e);
 		}

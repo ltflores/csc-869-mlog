@@ -15,7 +15,7 @@ import weka.core.converters.TextDirectoryLoader;
  * @author ltflores
  *
  */
-public class CustmTextDirectoryLoader extends TextDirectoryLoader {
+public class CustomTextDirectoryLoader extends TextDirectoryLoader {
 
 	/**
 	 * Eclipse wanted this...so I gave in...
