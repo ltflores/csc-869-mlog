@@ -35,6 +35,8 @@ public class Arguments {
     private static final String ARG_OUTPUT_DIR = "--output-dir=";
     private static final String ARG_PREPEND_SCREEN_NAME = "--prepend-screen-name";
     private static final String ARG_PREPEND_TIMESTAMP = "--prepend-timestamp";
+    private static final String ARG_SINCE_ID = "--since-id=";
+    private static final String ARG_MAX_ID = "--max-id=";
 
 
     // defaults:
@@ -52,6 +54,8 @@ public class Arguments {
     private File outputDir = null;
     private boolean prependScreenName = false;
     private boolean prependTimestamp = false;
+    private long sinceId = -1L; // no limit
+    private long maxId = -1L; // no limit
 
     
     public Arguments(String[] args) {
@@ -123,6 +127,10 @@ public class Arguments {
                 this.prependScreenName = true;
             } else if (arg.startsWith(ARG_PREPEND_TIMESTAMP)) {
                 this.prependTimestamp = true;
+            } else if (arg.startsWith(ARG_SINCE_ID)) {
+                this.sinceId = Long.parseLong(arg.substring(ARG_SINCE_ID.length()));
+            } else if (arg.startsWith(ARG_MAX_ID)) {
+                this.maxId = Long.parseLong(arg.substring(ARG_MAX_ID.length()));
             } else {
                 Logger.log(Logger.Level.ERROR, "unknown argument: "+arg);
                 System.exit(1);
@@ -303,5 +311,23 @@ public class Arguments {
 
     public boolean getPrependTimestamp() {
         return this.prependTimestamp;
+    }
+
+    /**
+     * returns id of first tweet to scrape,
+     * or a negative number if no lower limit should be set
+     * @return
+     */
+    public long getSinceId() {
+        return this.sinceId;
+    }
+
+    /**
+     * returns id of the last tweet to scrape,
+     * or a negative number if no upper limit should be set
+     * @return
+     */
+    public long getMaxId() {
+        return this.maxId;
     }
 }

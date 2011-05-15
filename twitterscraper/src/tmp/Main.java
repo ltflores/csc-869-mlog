@@ -126,6 +126,8 @@ public class Main {
                 timelineScraper.setWithRetweets(arguments.getWithRetweets());
                 timelineScraper.setPrependScreenName(arguments.getPrependScreenName());
                 timelineScraper.setPrependTimestamp(arguments.getPrependTimestamp());
+                timelineScraper.setMaxId(arguments.getMaxId());
+                timelineScraper.setSinceId(arguments.getSinceId());
                 
                 for (String screenName : arguments.getScreenNames()) {
                     String[] tweets = null;
