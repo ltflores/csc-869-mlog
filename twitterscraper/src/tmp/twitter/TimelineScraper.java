@@ -71,7 +71,7 @@ public class TimelineScraper {
             // add partial last page
             maxPage2++;
         }
-        int maxPage = maxPage1>maxPage2 ? maxPage1 : maxPage2;
+        int maxPage = maxPage1>maxPage2 ? maxPage2 : maxPage1; // =min(max1,max2)
 
         pageLoop:
         for (int pageNumber=1; pageNumber<=maxPage; pageNumber++) {
