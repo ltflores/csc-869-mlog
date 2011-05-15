@@ -22,6 +22,11 @@ public class TimelineScraper {
     private boolean prependTimestamp = false;
     private boolean prependScreenName = false;
     private DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+    private Date sinceDate;
+    private Date untilDate;
+    private long sinceId = -1L;
+    private long maxId = -1L;
+
 
     public TimelineScraper() {
         TwitterFactory twitterFactory = new TwitterFactory();
@@ -44,6 +49,14 @@ public class TimelineScraper {
         this.prependScreenName = prependScreenName;
     }
 
+    public void setSinceId(long sinceId) {
+        this.sinceId = sinceId;
+    }
+
+    public void setMaxId(long maxId) {
+        this.maxId = maxId;
+    }
+
     public String[] scrape(String screenName) throws TwitterException {
         ArrayList<String> result = new ArrayList<String>();
         int tweetTotal = twitter.showUser(screenName).getStatusesCount();
@@ -56,6 +69,12 @@ public class TimelineScraper {
         pageLoop:
         for (int pageNumber=1; pageNumber<=maxPage; pageNumber++) {
             Paging page = new Paging(pageNumber, tweetsPerPage);
+            if (this.sinceId>=0) {
+                page.setSinceId(this.sinceId);
+            }
+            if (this.maxId>=0) {
+                page.setMaxId(this.maxId);
+            }
             List<Status> tweets = this.twitter.getUserTimeline(screenName,page);
             for (Status tweet : tweets) {
                 String tweetText = tweet.getText();
