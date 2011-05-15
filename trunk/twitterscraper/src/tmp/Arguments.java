@@ -32,7 +32,9 @@ public class Arguments {
     private static final String ARG_POSITIVE = "--positive";
     private static final String ARG_NEGATIVE = "--negative";
     private static final String ARG_NO_RETWEETS = "--no-retweets";
-    private static final String ARG_OUTPUT = "--output-dir=";
+    private static final String ARG_OUTPUT_DIR = "--output-dir=";
+    private static final String ARG_PREPEND_SCREEN_NAME = "--prepend-screen-name";
+    private static final String ARG_PREPEND_TIMESTAMP = "--prepend-timestamp";
 
 
     // defaults:
@@ -48,6 +50,8 @@ public class Arguments {
     private boolean withRetweets = true;
     private boolean outputToDir = false;
     private File outputDir = null;
+    private boolean prependScreenName = false;
+    private boolean prependTimestamp = false;
 
     
     public Arguments(String[] args) {
@@ -110,11 +114,15 @@ public class Arguments {
                 this.positiveAttitude = false;
             } else if (arg.startsWith(ARG_NO_RETWEETS)) {
                 this.withRetweets = false;
-            } else if (arg.startsWith(ARG_OUTPUT)) {
+            } else if (arg.startsWith(ARG_OUTPUT_DIR)) {
             	this.outputToDir = true;
-            	String outputDirName = arg.substring(ARG_OUTPUT.length());
+            	String outputDirName = arg.substring(ARG_OUTPUT_DIR.length());
             	this.outputDir = new File(outputDirName);
             	outputDir.mkdir();
+            } else if (arg.startsWith(ARG_PREPEND_SCREEN_NAME)) {
+                this.prependScreenName = true;
+            } else if (arg.startsWith(ARG_PREPEND_TIMESTAMP)) {
+                this.prependTimestamp = true;
             } else {
                 Logger.log(Logger.Level.ERROR, "unknown argument: "+arg);
                 System.exit(1);
@@ -287,5 +295,13 @@ public class Arguments {
     
     public File getOutputDir(){
     	return this.outputDir;
+    }
+
+    public boolean getPrependScreenName() {
+        return this.prependScreenName;
+    }
+
+    public boolean getPrependTimestamp() {
+        return this.prependTimestamp;
     }
 }

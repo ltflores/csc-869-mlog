@@ -10,6 +10,7 @@ import tmp.twitter.FriendScraper;
 import tmp.twitter.IScraper;
 import twitter4j.TwitterException;
 import tmp.splitters.WordSplitter;
+import tmp.twitter.TimelineScraper;
 import tmp.twitter.TweetIntervalScraper;
 
 /**
@@ -37,6 +38,94 @@ public class Main {
                 }
                 intervalScraper.setPerUserLimit(arguments.getPerUserLimit());
                 intervalScraper.setWithRetweets(arguments.getWithRetweets());
+                intervalScraper.setPrependScreenName(arguments.getPrependScreenName());
+                intervalScraper.setPrependTimestamp(arguments.getPrependTimestamp());
+
+                for (String screenName : arguments.getScreenNames()) {
+                    String[] tweets = null;
+
+                    BufferedWriter output=null;
+
+                    if (arguments.outputToDir()){
+                    	try {
+                    		String fileName = screenName;
+                	    	output = new BufferedWriter(new FileWriter(arguments.getOutputDir().getAbsolutePath() + File.separator + fileName));
+                    	} catch (Exception e){
+                        	e.printStackTrace();
+                        }
+                    }
+
+                    while (true) {
+                        try {
+                            tweets = intervalScraper.scrape(screenName);
+                            // if no exception occured:
+                            break;
+                        } catch (TwitterException te) {
+                            if (te.exceededRateLimitation()) {
+                                int secondsToSleep = te.getRetryAfter();
+                                Logger.log(Logger.Level.WARNING, "recieved "
+                                        + "TwitterException while scrapeing "
+                                        + "tweets of @" + screenName
+                                        + ". Backing off for " + secondsToSleep
+                                        + " seconds.");
+                                try {
+                                    Thread.sleep(secondsToSleep * 1000);
+                                } catch (InterruptedException ex) {
+                                    Logger.log(Logger.Level.ERROR, "oh no, "
+                                            + "caught exception while "
+                                            + "sleeping:\n");
+                                    ex.printStackTrace();
+                                    System.exit(-1);
+                                }
+                                continue; // try to scrape again
+                            } else { // twitter exception not related to rate
+                                Logger.log(Logger.Level.ERROR, "oh no, "
+                                        + "caught twitter exception not "
+                                        + "related to quotas, while scraping "
+                                        + "tweets of " + screenName + ":\n");
+                                te.printStackTrace();
+                                Logger.log(Logger.Level.WARNING, "not scraping "+screenName);
+                                break;
+                            }
+                        }
+                    }
+
+                    //time to filter/print/write tweets
+                    if (tweets!=null && tweets.length>0) {
+                        for (String tweet : tweets) {
+                            if (tweet == null) {
+                                Logger.log(Logger.Level.ERROR, "null tweet for: " + screenName);
+                            } else if (tweet.isEmpty()) {
+                                Logger.log(Logger.Level.ERROR, "empty tweet for: " + screenName);
+                            } else {
+                            	if (arguments.outputToDir()){
+                            		try {
+                            			output.write(tweet+"\n");
+                            		} catch(Exception e) {
+                            			e.printStackTrace();
+                            		}
+                            	}
+                                System.out.println(tweet);
+                            }
+                        }
+                    }
+                    if (arguments.outputToDir()){
+                    	try {
+                    		output.flush();
+                	    	output.close();
+                    	} catch(Exception e){
+                    		e.printStackTrace();
+                    	}
+                    }
+
+                }
+                break;
+            case ScrapeTimeline:
+                TimelineScraper timelineScraper = new TimelineScraper();
+                timelineScraper.setPerUserLimit(arguments.getPerUserLimit());
+                timelineScraper.setWithRetweets(arguments.getWithRetweets());
+                timelineScraper.setPrependScreenName(arguments.getPrependScreenName());
+                timelineScraper.setPrependTimestamp(arguments.getPrependTimestamp());
                 
                 for (String screenName : arguments.getScreenNames()) {
                     String[] tweets = null;
@@ -54,7 +143,7 @@ public class Main {
                     
                     while (true) {
                         try {
-                            tweets = intervalScraper.scrape(screenName);
+                            tweets = timelineScraper.scrape(screenName);
                             // if no exception occured:
                             break;
                         } catch (TwitterException te) {
