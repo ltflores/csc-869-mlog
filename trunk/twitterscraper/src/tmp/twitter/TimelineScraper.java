@@ -61,11 +61,18 @@ public class TimelineScraper {
         ArrayList<String> result = new ArrayList<String>();
         int tweetTotal = twitter.showUser(screenName).getStatusesCount();
         int tweetsPerPage = 20;
-        int maxPage = tweetTotal/tweetsPerPage;
+        int maxPage1 = tweetTotal/tweetsPerPage;
         if ((tweetTotal % tweetsPerPage)>0) {
             // add partial last page
-            maxPage++;
+            maxPage1++;
         }
+        int maxPage2 = this.perUserLimit / tweetsPerPage;
+        if ((this.perUserLimit % tweetsPerPage)>0) {
+            // add partial last page
+            maxPage2++;
+        }
+        int maxPage = maxPage1>maxPage2 ? maxPage1 : maxPage2;
+
         pageLoop:
         for (int pageNumber=1; pageNumber<=maxPage; pageNumber++) {
             Paging page = new Paging(pageNumber, tweetsPerPage);

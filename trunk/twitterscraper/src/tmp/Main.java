@@ -23,6 +23,8 @@ public class Main {
         Arguments arguments = new Arguments(args);
         Logger.init(arguments.getLogLevel(), System.err);
         ToolFactory toolFactory = new ToolFactory(arguments);
+        int progressCounter = 0;
+        int progressTotal;
         switch (arguments.getTarget()) {
             case ScrapeTweetInterval:
                 TweetIntervalScraper intervalScraper = null;
@@ -41,7 +43,15 @@ public class Main {
                 intervalScraper.setPrependScreenName(arguments.getPrependScreenName());
                 intervalScraper.setPrependTimestamp(arguments.getPrependTimestamp());
 
+                progressCounter = 0;
+                progressTotal = arguments.getScreenNames().size();
+
                 for (String screenName : arguments.getScreenNames()) {
+                    Logger.log(Logger.Level.WARNING,
+                            "" + (100*progressCounter/progressTotal)
+                            + "% done, now scraping: "+screenName);
+                    progressCounter++;
+
                     String[] tweets = null;
 
                     BufferedWriter output=null;
@@ -128,8 +138,16 @@ public class Main {
                 timelineScraper.setPrependTimestamp(arguments.getPrependTimestamp());
                 timelineScraper.setMaxId(arguments.getMaxId());
                 timelineScraper.setSinceId(arguments.getSinceId());
+
+                progressCounter = 0;
+                progressTotal = arguments.getScreenNames().size();
                 
                 for (String screenName : arguments.getScreenNames()) {
+                    Logger.log(Logger.Level.WARNING,
+                            "" + (100*progressCounter/progressTotal)
+                            + "% done, now scraping: "+screenName);
+                    progressCounter++;
+
                     String[] tweets = null;
                     
                     BufferedWriter output=null;
@@ -210,7 +228,13 @@ public class Main {
                 break;
             case ScrapeFriends:
                 IScraper<Long[]> friendScraper = new FriendScraper(); //toolFactory.getScraper();
+                progressCounter = 0;
+                progressTotal = arguments.getScreenNames().size();
                 for (String screenName : arguments.getScreenNames()) {
+                    Logger.log(Logger.Level.WARNING,
+                            "" + (100*progressCounter/progressTotal)
+                            + "% done, now scraping: "+screenName);
+                    progressCounter++;
                     Long[][] edges = null;
                     while (true) {
                         try {
