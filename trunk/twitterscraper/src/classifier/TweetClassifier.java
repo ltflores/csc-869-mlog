@@ -330,8 +330,18 @@ public class TweetClassifier {
 			case J48:
 				classifier = new J48();
 			}
-			classifier.buildClassifier(data);
-			weka.core.SerializationHelper.write(modelFileName, classifier);
+			
+			//Create remove file name filter
+			Remove remove = new Remove();
+			remove.setAttributeIndicesArray(new int[] {0});
+			remove.setInputFormat(data);
+			
+			FilteredClassifier filtered = new FilteredClassifier();
+			filtered.setClassifier(classifier);
+			filtered.setFilter(remove);
+			
+			filtered.buildClassifier(data);
+			weka.core.SerializationHelper.write(modelFileName, filtered);
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, null, e);
 		}		
