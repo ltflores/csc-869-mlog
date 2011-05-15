@@ -18,17 +18,17 @@ import twitter4j.TwitterFactory;
 public class TweetIntervalScraper {
     private Twitter twitter;
     private String queryStrBase;
-    private int perUserLimit;
-    private boolean withRetweets;
+    private int perUserLimit = -1; // no limit
+    private boolean withRetweets = true;
+    private boolean prependScreenName = false;
+    private boolean prependTimestamp = false;
+    private DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
     public TweetIntervalScraper(Date sinceDate, Date untilDate) {
         TwitterFactory twitterFactory = new TwitterFactory();
         this.twitter = twitterFactory.getInstance();
-        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-        this.queryStrBase = "since:" + dateFormatter.format(sinceDate)
-                + " until:" + dateFormatter.format(untilDate);
-        this.withRetweets = true;
-        this.perUserLimit = -1; // no limit
+        this.queryStrBase = "since:" + this.dateFormatter.format(sinceDate)
+                + " until:" + this.dateFormatter.format(untilDate);
     }
 
     public TweetIntervalScraper(Date sinceDate,
@@ -49,6 +49,14 @@ public class TweetIntervalScraper {
         this.withRetweets = withRetweets;
     }
 
+    public void setPrependTimestamp(boolean prependTimestamp) {
+        this.prependTimestamp = prependTimestamp;
+    }
+
+    public void setPrependScreenName(boolean prependScreenName) {
+        this.prependScreenName = prependScreenName;
+    }
+
     public String[] scrape(String screenName) throws TwitterException {
         ArrayList<String> result = new ArrayList<String>();
         String queryStr = this.queryStrBase + " from:"+screenName;
@@ -56,7 +64,14 @@ public class TweetIntervalScraper {
         for (Tweet tweet : tweets) {
             String tweetText = tweet.getText();
             if (this.withRetweets || !tweetText.startsWith("RT ")) {
-                result.add(tweet.getText());
+                if (this.prependTimestamp) {
+                    tweetText = this.dateFormatter.format(tweet.getCreatedAt())
+                            + " " + tweetText;
+                }
+                if (this.prependScreenName) {
+                    tweetText = "@" + screenName + " " + tweetText;
+                }
+                result.add(tweetText);
                 if (this.perUserLimit >= 0 && result.size() >= this.perUserLimit) {
                     break;
                 }

@@ -7,6 +7,7 @@ package tmp;
 public enum Target {
     // list targets in order of the work flow:
     ScrapeTweetInterval("scrape-tweet-interval"),
+    ScrapeTimeline("scrape-timeline"),
     ScrapeFriends("scrape-friends"),
     ScrapeDictionary("scrape-dictionary"),
     Tokenize("tokenize"),
