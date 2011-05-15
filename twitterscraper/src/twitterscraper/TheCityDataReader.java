@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.IOException;
 
-public class OrenDataReader {
+public class TheCityDataReader {
 	
 	public static void main(String[] args){
 		
