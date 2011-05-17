@@ -110,8 +110,10 @@ public class TweetClassifier {
 				noeval = true;
 			} else if(arg.startsWith("-ngrammin=")){
                 ngrammin = Integer.parseInt(arg.substring("-ngrammin=".length()));
+            } else {
+            	System.out.println("Unknown command line arument: " + arg);
+            	System.exit(-1);
             }
-
 		}
 	}
 
