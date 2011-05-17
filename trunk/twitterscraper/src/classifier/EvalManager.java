@@ -4,16 +4,23 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
 import weka.classifiers.Evaluation;
 
+/*
+ * Gavin Dodd 5/14/2011
+ * 
+ */
 public class EvalManager {
 
 	/*
+	 * 
 	 * Scripts are in comma delimited file format each line has the following
 	 * options
 	 */
@@ -130,14 +137,27 @@ public class EvalManager {
 		return null;
 	}
 
+	static String stripExtension (String str) {         
+		if (str == null)             
+			return null;         
+		int pos = str.lastIndexOf(".");         
+		if (pos == -1)             
+			return str;         
+		return str.substring(0,pos);     
+	} 
+	
 	public void writeEvalResults(String outputFile, Vector<EvalRecord> results) {
 
 		// before we open the file check to see if it already exists
 		boolean alreadyExists = new File(outputFile).exists();
 
 		try {
+			String fileNameWithOutExt = stripExtension(outputFile);
+			
+			SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssZ");
+			String stamp = format.format(new Date());
 			// use FileWriter constructor that specifies open for appending
-			CsvWriter csvOutput = new CsvWriter(new FileWriter(outputFile, true), ',');
+			CsvWriter csvOutput = new CsvWriter(new FileWriter(fileNameWithOutExt+"_result_"+stamp+".csv" , true), ',');
 
 			// if the file didn't already exist then we need to write out the
 			// header line
@@ -151,7 +171,6 @@ public class EvalManager {
 				EvalRecord cur = it.next();
 
 				// Results - in same order as they are declared in EvalParams
-
 				csvOutput.write(cur.getIn());
 				csvOutput.write(cur.getClassifier().toString());
 				csvOutput.write(cur.getLoader().toString());
@@ -184,6 +203,7 @@ public class EvalManager {
 				csvOutput.write(Double.toString(cur.getTn()));
 				csvOutput.write(Integer.toString(cur.getFp()));
 				csvOutput.write(Integer.toString(cur.getFn()));
+				csvOutput.endRecord();
 			}
 			csvOutput.close();
 		} catch (IOException e) {
@@ -195,8 +215,7 @@ public class EvalManager {
 	private void writeHeader(CsvWriter csvOutput) {
 
 		String[] header = { "in", "classifier", "loader", "tokenizer", "stemmer", "k", "features", "ngrammin",
-				"stopwords", "evaluate",
-				"save",
+				"stopwords", "evaluate", "modelfilename","save",
 				// Output results
 				"totalInstances", "corclassified", "incclassified", "kappa", "meanabserr", "rmserr", "relabserr",
 				"rootrelsqerr", "coverage", "meanrelreg", "precision", "pctcorrect", "pctincorrect", "pctunclassified",
@@ -237,8 +256,9 @@ public class EvalManager {
 
 		// now save the eval results to the params.
 		Evaluation eval = tweetclass.getEval();
+		if(eval != null)
 		// store the evaluation results in the testcase
-		testcase.readEval(eval);
+			testcase.readEval(eval);
 		return true;
 	}
 
