@@ -1,67 +1,33 @@
 package classifier;
 
-import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import weka.core.Instances;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import weka.classifiers.AbstractClassifier;
-import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.NaiveBayes;
-import weka.classifiers.evaluation.NominalPrediction;
-import weka.classifiers.meta.FilteredClassifier;
-import weka.classifiers.trees.J48;
-import weka.core.FastVector;
-import weka.core.Instance;
-import weka.core.Instances;
-import weka.core.Utils;
-import weka.core.stemmers.SnowballStemmer;
-import weka.core.tokenizers.NGramTokenizer;
-import weka.core.tokenizers.Tokenizer;
-import weka.core.tokenizers.WordTokenizer;
-import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.Remove;
-import weka.filters.unsupervised.attribute.StringToWordVector;
 
 public class EvalManager {
-	
-	
-	private String outputfilename = "out.csv";
-	
-	public EvalManager(){
-	}
-		
-	
-	
+
 	/*
-	 * Scripts are in comma delimited file format 
-	 * each line has the following options
-	 * 
-	 *  
+	 * Scripts are in comma delimited file format each line has the following
+	 * options
 	 */
-	private Vector<EvalRecord> loadevalscript(String script)
-	{
-		// just call the handy CsvReader 
+	private Vector<EvalRecord> loadevalscript(String script) {
+		// just call the handy CsvReader
 		try {
-			
+
 			Vector<EvalRecord> scriptParams = new Vector<EvalRecord>();
 			CsvReader csv = new CsvReader(script);
-			while (csv.readRecord())
-			{
-				EvalRecord next = new EvalRecord(); 
-				
+			csv.readHeaders();
+			
+			while (csv.readRecord()) {
+				EvalRecord next = new EvalRecord();
+
 				// read params
 				next.setIn(csv.get("in"));
 				next.setClassifier(TweetClassifier.ClassifierType.valueOf(csv.get("classifier")));
@@ -75,69 +41,87 @@ public class EvalManager {
 				next.setEvaluate(Boolean.parseBoolean(csv.get("evaluate")));
 				next.setModelFileName(csv.get("modelfilename"));
 				next.setSave(Boolean.parseBoolean(csv.get("save")));
-				
+
 				// read results
 				String tmp;
 				tmp = csv.get("totalinstances");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setTotalInstances(Integer.parseInt(tmp));
 				tmp = csv.get("corclassified");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setCorclassified(Integer.parseInt(tmp));
 				tmp = csv.get("incclassified");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setIncclassified(Integer.parseInt(tmp));
 				tmp = csv.get("kappa");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setKappa(Float.parseFloat(tmp));
 				tmp = csv.get("meanabserr");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setMeanabserr(Float.parseFloat(tmp));
 				tmp = csv.get("rmserr");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setRmserr(Float.parseFloat(tmp));
 				tmp = csv.get("relabserr");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setRelabserr(Float.parseFloat(tmp));
 				tmp = csv.get("rootrelsqerr");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setRootrelsqerr(Float.parseFloat(tmp));
 				tmp = csv.get("coverage");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setCoverage(Float.parseFloat(tmp));
 				tmp = csv.get("meanrelreg");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setMeanrelreg(Float.parseFloat(tmp));
 				tmp = csv.get("precision");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setPrecision(Double.parseDouble(tmp));
 				tmp = csv.get("pctcorrect");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setPctcorrect(Double.parseDouble(tmp));
 				tmp = csv.get("pctincorrect");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setPctincorrect(Double.parseDouble(tmp));
 				tmp = csv.get("pctunclassified");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setPctunclassified(Double.parseDouble(tmp));
 				tmp = csv.get("tp");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setTp(Integer.parseInt(tmp));
 				tmp = csv.get("tn");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setTn(Integer.parseInt(tmp));
 				tmp = csv.get("fp");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setFp(Integer.parseInt(tmp));
 				tmp = csv.get("fn");
-				if (tmp.length()==0) tmp = "0";
+				if (tmp.length() == 0)
+					tmp = "0";
 				next.setFn(Integer.parseInt(tmp));
-				
-				
+
 				// add to the list
 				scriptParams.add(next);
 			}
 			csv.close();
+			return scriptParams;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -146,29 +130,28 @@ public class EvalManager {
 		return null;
 	}
 
-	
-	public void writeEvalResults(String outputFile, Vector<EvalRecord> results){
-		
+	public void writeEvalResults(String outputFile, Vector<EvalRecord> results) {
+
 		// before we open the file check to see if it already exists
 		boolean alreadyExists = new File(outputFile).exists();
-			
+
 		try {
 			// use FileWriter constructor that specifies open for appending
 			CsvWriter csvOutput = new CsvWriter(new FileWriter(outputFile, true), ',');
-			
-			// if the file didn't already exist then we need to write out the header line
-			if (!alreadyExists)
-			{
+
+			// if the file didn't already exist then we need to write out the
+			// header line
+			if (!alreadyExists) {
 				writeHeader(csvOutput);
 			}
-			
+
 			Iterator<EvalRecord> it = results.iterator();
-			
-			while (it.hasNext()){
+
+			while (it.hasNext()) {
 				EvalRecord cur = it.next();
-				
+
 				// Results - in same order as they are declared in EvalParams
-				
+
 				csvOutput.write(cur.getIn());
 				csvOutput.write(cur.getClassifier().toString());
 				csvOutput.write(cur.getLoader().toString());
@@ -181,7 +164,7 @@ public class EvalManager {
 				csvOutput.write(Boolean.toString(cur.isEvaluate()));
 				csvOutput.write(cur.getModelFileName());
 				csvOutput.write(Boolean.toString(cur.isSave()));
-				
+
 				// Results - in same order as they are declared in EvalParams
 				csvOutput.write(Integer.toString(cur.getTotalInstances()));
 				csvOutput.write(Integer.toString(cur.getCorclassified()));
@@ -205,124 +188,101 @@ public class EvalManager {
 			csvOutput.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}	
-		
+		}
+
 	}
-	
+
 	private void writeHeader(CsvWriter csvOutput) {
-		
-		
-		String[] header = { "in","classifier","loader","tokenizer","stemmer","k","features",
-				"ngrammin",	"stopwords","evaluate", "save",
+
+		String[] header = { "in", "classifier", "loader", "tokenizer", "stemmer", "k", "features", "ngrammin",
+				"stopwords", "evaluate",
+				"save",
 				// Output results
-				"totalInstances","corclassified","incclassified","kappa","meanabserr","rmserr",
-				"relabserr","rootrelsqerr","coverage","meanrelreg","precision","pctcorrect",
-				"pctincorrect","pctunclassified","tp","tn","fp","fn"};
-		
-			
-		
-			try {
-				
-				for(String field  : header)
-				{
-					csvOutput.write(field);
-				}
-				
-				csvOutput.endRecord();
-					
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				"totalInstances", "corclassified", "incclassified", "kappa", "meanabserr", "rmserr", "relabserr",
+				"rootrelsqerr", "coverage", "meanrelreg", "precision", "pctcorrect", "pctincorrect", "pctunclassified",
+				"tp", "tn", "fp", "fn" };
+
+		try {
+			for (String field : header) {
+				csvOutput.write(field);
 			}
-		
+
+			csvOutput.endRecord();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-
-	private boolean eval(EvalRecord testcase){
-		
+	private boolean eval(EvalRecord testcase) {
 		List<String> args = new ArrayList<String>();
-        args.add("-in=" + testcase.getIn());
-        args.add("-loader=" + testcase.getLoader());
-        args.add("-tokenizer=" + testcase.getTokenizer());
-        args.add("-stemmer=" + testcase.getStemmer());
-        args.add("-features=" + testcase.getFeatures());
-        args.add("-ngrammin=" + testcase.getNgrammin());
-        args.add("-classifier=" + testcase.getClassifier());
-        args.add("-k=" + testcase.getK());
-        if (!testcase.isStopwords()) {
-                args.add("-nostopwords");
-        }
-        if (testcase.getModelFileName() != null) {
-                args.add("-save=" + testcase.getModelFileName());
-        }
+		args.add("-in=" + testcase.getIn());
+		args.add("-loader=" + testcase.getLoader());
+		args.add("-tokenizer=" + testcase.getTokenizer());
+		args.add("-stemmer=" + testcase.getStemmer());
+		args.add("-features=" + testcase.getFeatures());
+		args.add("-ngrammin=" + testcase.getNgrammin());
+		args.add("-classifier=" + testcase.getClassifier());
+		args.add("-k=" + testcase.getK());
+		if (!testcase.isStopwords()) {
+			args.add("-nostopwords");
+		}
+		if (testcase.getModelFileName() != null) {
+			args.add("-save=" + testcase.getModelFileName());
+		}
 
-        TweetClassifier tweetclass = new TweetClassifier(args.toArray(new String[] {}));
-        tweetclass.runClassification();
-        
-        // now save the eval results to the params.
-        Evaluation eval = tweetclass.getEval();
-        // store the evaluation results in the testcase
-        testcase.readEval(eval);
-        return true;
-		
-        
-		
+		TweetClassifier tweetclass = new TweetClassifier(args.toArray(new String[] {}));
+		tweetclass.runClassification();
+
+		// now save the eval results to the params.
+		Evaluation eval = tweetclass.getEval();
+		// store the evaluation results in the testcase
+		testcase.readEval(eval);
+		return true;
 	}
-	
-	
+
 	public static void main(String[] args) throws Exception {
-		try{
-			
+		try {
 			String input = "";
 			String output = "output.csv";
-			for(String arg : args){
-				
-				if(arg.startsWith("-input=")) {
+			for (String arg : args) {
+
+				if (arg.startsWith("-input=")) {
 					input = arg.substring("-input=".length());
-				} else if(arg.startsWith("-output=")) {
+				} else if (arg.startsWith("-output=")) {
 					output = arg.substring("-output=".length());
 				}
 			}
-				
+
 			EvalManager manager = new EvalManager();
-			if (input.length()!=0){
+			if (input.length() != 0) {
 				manager.evaluate(input, output);
 			} else {
 				// guess we are just writing a header.
 				manager.writeEmptyFile(output);
 			}
-			
-		}catch(Exception ex){
+
+		} catch (Exception ex) {
 			throw ex;
 		}
 	}
-	
+
 	// should just write us an empty file
-	public void writeEmptyFile(String filename)
-	{
+	public void writeEmptyFile(String filename) {
 		writeEvalResults(filename, new Vector<EvalRecord>());
 	}
-	
-	
-	public void evaluate(String scriptfilename, String outputfilename){
-		
+
+	public void evaluate(String scriptfilename, String outputfilename) {
 		Vector<EvalRecord> testcases = loadevalscript(scriptfilename);
-		
+
 		Iterator<EvalRecord> it = testcases.iterator();
-		while(it.hasNext())
-		{
+		while (it.hasNext()) {
 			eval(it.next());
 		}
 		// now they are all done, lets save the results
-		
-		writeEvalResults(outputfilename, testcases);
-		
-		
-		
-		
-	}
-	
 
-	
+		writeEvalResults(outputfilename, testcases);
+	}
 
 }
