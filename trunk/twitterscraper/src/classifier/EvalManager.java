@@ -8,7 +8,9 @@ import java.io.IOException;
 import weka.core.Instances;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -238,31 +240,32 @@ public class EvalManager {
 
 	private boolean eval(EvalRecord testcase){
 		
-		TweetClassifier tweetclass = new TweetClassifier();
-        
-		
-		Instances tweets = tweetclass.loadTweets(testcase.getIn(), 
-				testcase.getLoader(), testcase.getTokenizer(), testcase.getStemmer(),
-				testcase.isStopwords(), testcase.getFeatures(), testcase.getNgrammin());
-        
-        if (testcase.isEvaluate()){
-        	tweetclass.evaluateClassifier(tweets, testcase.getClassifier(), testcase.getK());
-        } else {
-        	System.out.println("Not evaluating");
+		List<String> args = new ArrayList<String>();
+        args.add("-in=" + testcase.getIn());
+        args.add("-loader=" + testcase.getLoader());
+        args.add("-tokenizer=" + testcase.getTokenizer());
+        args.add("-stemmer=" + testcase.getStemmer());
+        args.add("-features=" + testcase.getFeatures());
+        args.add("-ngrammin=" + testcase.getNgrammin());
+        args.add("-classifier=" + testcase.getClassifier());
+        args.add("-k=" + testcase.getK());
+        if (!testcase.isStopwords()) {
+                args.add("-nostopwords");
         }
-        
-        if(testcase.getModelFileName() == null) {
-    		System.out.println("Not saving model");
-    	} else {
-    		System.out.println("Using -save=" + testcase.getModelFileName());
-    		tweetclass.saveClassifier(tweets, testcase.getClassifier(), testcase.getModelFileName());
-    	}
+        if (testcase.getModelFileName() != null) {
+                args.add("-save=" + testcase.getModelFileName());
+        }
+
+        TweetClassifier tweetclass = new TweetClassifier(args.toArray(new String[] {}));
+        tweetclass.runClassification();
         
         // now save the eval results to the params.
         Evaluation eval = tweetclass.getEval();
         // store the evaluation results in the testcase
         testcase.readEval(eval);
         return true;
+		
+        
 		
 	}
 	
