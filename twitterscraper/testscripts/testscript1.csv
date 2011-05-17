@@ -1,0 +1,2 @@
+in,classifier,loader,tokenizer,stemmer,k,features,ngrammin,stopwords,evaluate,modelfilename,save,totalInstances,corclassified,incclassified,kappa,meanabserr,rmserr,relabserr,rootrelsqerr,coverage,meanrelreg,precision,pctcorrect,pctincorrect,pctunclassified,tp,tn,fp,fn
+data/2011-05-09_to_2011-05-13_noemptyfiles,BAYES,FILE,WORD,NONE,10,100,-1,TRUE,TRUE,TRUE,TRUE,,,,,,,,,,,,,,,,,,
