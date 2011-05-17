@@ -45,8 +45,6 @@ public class EvalRecord {
 	private int fp = 0;
 	private int fn = 0;
 	
-	
-	
 	public void setIn(String in) {
 		this.in = in;
 	}
