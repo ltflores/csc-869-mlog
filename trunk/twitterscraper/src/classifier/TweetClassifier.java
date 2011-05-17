@@ -36,22 +36,24 @@ import weka.filters.unsupervised.attribute.StringToWordVector;
 public class TweetClassifier {
 	
 	private final Logger logger = Logger.getLogger(TweetClassifier.class.getName());
+
+	private Evaluation eval;
 	
 	public static boolean debug = false;
 	
-	private enum ClassifierType {
+	public enum ClassifierType {
 	    BAYES, J48
 	}
 	
-	private enum LoaderType {
+	public enum LoaderType {
 	    SENTENCE, FILE
 	}
 	
-	private enum TokenizerType {
+	public enum TokenizerType {
 	    WORD, NGRAM
 	}
 	
-	private enum StemmerType {
+	public enum StemmerType {
 	    NONE, SNOWBALL
 	}
 
@@ -64,9 +66,11 @@ public class TweetClassifier {
     	StemmerType stemmer = null;
     	int k = 10;
     	int features = 1000;
+    	int ngrammin = -1;
     	boolean stopwords = true;
     	boolean evaluate = true;
     	String modelFileName = null;
+    	
     	
     	for(String arg : args) {
     		if(arg.startsWith("-in=")) {
@@ -91,6 +95,8 @@ public class TweetClassifier {
     			evaluate = false;
     		} else if(arg.startsWith("-features=")){
     			features = Integer.parseInt(arg.substring("-features=".length()));
+    		}else if(arg.startsWith("-ngrammin=")){
+    			ngrammin = Integer.parseInt(arg.substring("-ngrammin=".length()));
     		}
     	}
     	
@@ -128,7 +134,7 @@ public class TweetClassifier {
     	System.out.println("Using -features=" + features);
 
         TweetClassifier tweetclass = new TweetClassifier();
-        Instances tweets = tweetclass.loadTweets(in, loader, tokenizer, stemmer, stopwords, features);
+        Instances tweets = tweetclass.loadTweets(in, loader, tokenizer, stemmer, stopwords, features, ngrammin);
         
         if (evaluate){
         	tweetclass.evaluateClassifier(tweets, classifier, k);
@@ -137,12 +143,15 @@ public class TweetClassifier {
         }
         
         
+        
         if(modelFileName == null) {
     		System.out.println("Not saving model");
     	} else {
     		System.out.println("Using -save=" + modelFileName);
     		tweetclass.saveClassifier(tweets, classifier, modelFileName);
     	}
+        
+        
 
     }
 
@@ -162,7 +171,7 @@ public class TweetClassifier {
      * Creates an Instances using TextDirectoryLoader, with each of the
      */
 	public Instances loadTweets(String directoryPath, LoaderType loaderType,
-			TokenizerType tokenizerType, StemmerType stemmer, boolean stopwords, int features) {
+			TokenizerType tokenizerType, StemmerType stemmer, boolean stopwords, int features, int ngrammin) {
 		try {
 			CustomTextDirectoryLoader loader = null;
 			switch (loaderType) {
@@ -203,6 +212,8 @@ public class TweetClassifier {
 				break;
 			case NGRAM:
 				tokenizer = new NGramTokenizer();
+				if (ngrammin > 0)
+					((NGramTokenizer)tokenizer).setNGramMinSize(ngrammin);
 				break;
 			}
 			filter.setTokenizer(tokenizer);
@@ -278,7 +289,7 @@ public class TweetClassifier {
 
 			// Run cross validation
 			// perform cross-validation
-			Evaluation eval = new Evaluation(data);
+			setEval(new Evaluation(data));
 			for (int n = 0; n < k; n++) {
 				Instances train = data.trainCV(k, n);
 				Instances test = data.testCV(k, n);
@@ -290,7 +301,7 @@ public class TweetClassifier {
 				// build and evaluate classifier
 				Classifier clsCopy = AbstractClassifier.makeCopy(filtered);
 				clsCopy.buildClassifier(train);
-				eval.evaluateModel(clsCopy, test);
+				getEval().evaluateModel(clsCopy, test);
 			}
 
 			// output evaluation
@@ -301,11 +312,11 @@ public class TweetClassifier {
 			System.out.println("Dataset: " + data.relationName());
 			System.out.println("Folds: " + k);
 			System.out.println();
-			System.out.println(eval.toSummaryString("=== " + k
+			System.out.println(getEval().toSummaryString("=== " + k
 					+ "-fold Cross-validation ===", false));
 			
 			// Check which instances were falsely classified
-			FastVector predictions = eval.predictions();
+			FastVector predictions = getEval().predictions();
 			for (int i = 0; i < predictions.size(); i++) {
 				NominalPrediction prediction = (NominalPrediction) predictions.get(i);
 				if(prediction.actual()!=prediction.predicted()) {
@@ -345,6 +356,14 @@ public class TweetClassifier {
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, null, e);
 		}		
+	}
+
+	public void setEval(Evaluation eval) {
+		this.eval = eval;
+	}
+
+	public Evaluation getEval() {
+		return eval;
 	}
 
 }
