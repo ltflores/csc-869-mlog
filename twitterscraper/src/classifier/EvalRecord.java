@@ -2,6 +2,11 @@ package classifier;
 
 import weka.classifiers.Evaluation;
 
+
+/*
+ * Gavin Dodd 
+ * Created 5/16/2011
+ */
 public class EvalRecord {
 
 	
@@ -17,7 +22,7 @@ public class EvalRecord {
 	private int ngrammin = -1;
 	private boolean stopwords = true;
 	private boolean evaluate = true;
-	private String modelFileName = null;
+	private String modelfilename = null;
 	private boolean save = false;
 
 	
@@ -106,10 +111,10 @@ public class EvalRecord {
 		return evaluate;
 	}
 	public void setModelFileName(String modelFileName) {
-		this.modelFileName = modelFileName;
+		this.modelfilename = modelFileName;
 	}
 	public String getModelFileName() {
-		return modelFileName;
+		return modelfilename;
 	}
 	public void setTotalInstances(int totalInstances) {
 		this.totalInstances = totalInstances;
