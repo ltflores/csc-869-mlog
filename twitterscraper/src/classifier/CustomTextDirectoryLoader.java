@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 import weka.core.Attribute;
 import weka.core.Instances;
-
 import weka.core.converters.TextDirectoryLoader;
 
 /**
