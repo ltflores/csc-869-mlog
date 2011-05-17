@@ -147,17 +147,19 @@ public class EvalManager {
 	} 
 	
 	public void writeEvalResults(String outputFile, Vector<EvalRecord> results) {
-
+		String fileNameWithOutExt = stripExtension(outputFile);
+		
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssZ");
+		String stamp = format.format(new Date());
+		
+		outputFile = fileNameWithOutExt+"_result_"+stamp+".csv";
+		
 		// before we open the file check to see if it already exists
 		boolean alreadyExists = new File(outputFile).exists();
 
 		try {
-			String fileNameWithOutExt = stripExtension(outputFile);
-			
-			SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssZ");
-			String stamp = format.format(new Date());
 			// use FileWriter constructor that specifies open for appending
-			CsvWriter csvOutput = new CsvWriter(new FileWriter(fileNameWithOutExt+"_result_"+stamp+".csv" , true), ',');
+			CsvWriter csvOutput = new CsvWriter(new FileWriter(outputFile, true), ',');
 
 			// if the file didn't already exist then we need to write out the
 			// header line
