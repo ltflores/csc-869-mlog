@@ -10,6 +10,7 @@ public enum Target {
     ScrapeTimeline("scrape-timeline"),
     ScrapeFriends("scrape-friends"),
     ScrapeDictionary("scrape-dictionary"),
+    BuildDirectory("build-directory"),
     Tokenize("tokenize"),
     // All has to be the last target:
     All("all");
