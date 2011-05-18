@@ -5,7 +5,11 @@
 
 package classifier;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
 import java.util.logging.Level;
@@ -18,10 +22,12 @@ import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.evaluation.NominalPrediction;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.classifiers.trees.J48;
+import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
+import weka.core.converters.ArffSaver;
 import weka.core.stemmers.SnowballStemmer;
 import weka.core.tokenizers.NGramTokenizer;
 import weka.core.tokenizers.Tokenizer;
@@ -71,6 +77,8 @@ public class TweetClassifier {
 	private boolean noeval = false;
 	
 	private Evaluation eval;
+
+	private FastVector forcedAttributes;
 
 	public static void main(String[] args) throws Exception {
 		TweetClassifier tweetclass = new TweetClassifier(args);
@@ -158,22 +166,76 @@ public class TweetClassifier {
 	}
 
 	public void runClassification() {
-		Instances tweets = loadTweets();
 		
 		if(inputModel!=null) {
 			AbstractClassifier cls = null;
 			try {
 				cls = (AbstractClassifier) weka.core.SerializationHelper.read(inputModel);
+				
+				BufferedReader reader = new BufferedReader(new FileReader(inputModel + ".attributes"));
+				forcedAttributes = new FastVector();
+				String line = null;
+				int i=0;
+				while((line = reader.readLine())!=null) {
+					if(i==0) {
+						forcedAttributes.addElement(new Attribute(line, (FastVector) null));
+					} else if(i==1) { 
+						FastVector nominalValues = new FastVector(3);
+						nominalValues.addElement("democrats");
+						nominalValues.addElement("republicans"); 
+						forcedAttributes.addElement(new Attribute(line, nominalValues));
+					} else {
+						forcedAttributes.addElement(new Attribute(line));
+					}
+					i++;
+				}
+				reader.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			Instances tweets = loadTweets();
+			
+			int totalAttributes = 0;
+			for(int i=0; i<tweets.numInstances(); i++) {
+				Instance instance = tweets.instance(i);
+				for(int j=0; j<tweets.numAttributes(); j++) {
+					if(instance.value(j)!=0) {
+						//System.out.println("")
+						totalAttributes++;
+					}
+				}
+			}
+			System.out.println("There is a total of " + totalAttributes + " non null attributes.");
+			
 			evaluateClassifier(tweets, cls);
 		} else {
+			Instances tweets = loadTweets();
+			
+			int totalAttributes = 0;
+			for(int i=0; i<tweets.numInstances(); i++) {
+				Instance instance = tweets.instance(i);
+				for(int j=0; j<tweets.numAttributes(); j++) {
+					if(instance.value(j)!=0) {
+						//System.out.println("")
+						totalAttributes++;
+					}
+				}
+			}
+			System.out.println("There is a total of " + totalAttributes + " non null attributes.");
+			
 			Classifier cls = crossvalidateClassifier(tweets);
 			if(outputModel!=null) {
 				try {
 					weka.core.SerializationHelper.write(outputModel, cls);
 					System.out.println("Using -save=" + outputModel);
+					
+					BufferedWriter writer = new BufferedWriter(new FileWriter(outputModel + ".attributes"));
+					for(int i=0; i<tweets.numAttributes(); i++) {
+						writer.write(tweets.attribute(i).name() + "\n");
+					}
+					writer.flush();
+					writer.close();
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -210,6 +272,20 @@ public class TweetClassifier {
 				System.out.println(dataSentences.toString());
 			}
 			dataSentences.randomize(new Random(29390));
+		
+			ArffSaver saver = new ArffSaver();
+			saver.setInstances(dataSentences);
+			saver.setFile(new File("test.arff"));
+			saver.setDestination(new File("test.arff"));
+			saver.writeBatch();
+			
+			/*BufferedWriter writer = new BufferedWriter(new FileWriter("attribs.txt"));
+			for(int i=0; i<dataSentences.numInstances(); i++) {
+				writer.write(dataSentences.attribute(i).name() + "\n");
+			}
+			writer.flush();
+			writer.close();*/
+			
 			return dataSentences;
 		} catch (Exception ex) {
 			logger.log(Level.SEVERE, null, ex);
@@ -239,7 +315,10 @@ public class TweetClassifier {
 	}
 
 	private Instances transformData(Instances dataRaw) throws Exception {
-		StringToWordVector filter = new StringToWordVector();
+		CustomStringToWordVector filter = new CustomStringToWordVector();
+		
+		filter.setForcedAttributes(forcedAttributes);
+		
 		filter.setInputFormat(dataRaw);
 		filter.setLowerCaseTokens(true);
 
@@ -262,7 +341,7 @@ public class TweetClassifier {
 
 		// set the stop words file.
 		filter.setUseStoplist(stopwords);
-
+		
 		// set feature space size
 		filter.setWordsToKeep(features);
 		filter.setAttributeIndicesArray(new int[] { 0 });
@@ -320,6 +399,7 @@ public class TweetClassifier {
 	
 	private void evaluateClassifier(Instances data, AbstractClassifier cls) {
 		try {
+			cls.setDebug(true);
 			Evaluation eval = new Evaluation(data);
 			eval.evaluateModel(cls, data);
 			outputStatistics(data, cls, eval, false);
