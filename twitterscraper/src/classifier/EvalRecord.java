@@ -111,14 +111,16 @@ public class EvalRecord {
 		return evaluate;
 	}
 	public void setLoadModelFileName(String loadModelFileName) {
-		this.loadmodelfilename= loadModelFileName;
+		if (!loadModelFileName.isEmpty())
+			this.loadmodelfilename= loadModelFileName;
 	}
 	public String getLoadModelFileName() {
 		return loadmodelfilename;
 	}
 	
 	public void setSavemodelfilename(String savemodelfilename) {
-		this.savemodelfilename = savemodelfilename;
+		if (!savemodelfilename.isEmpty())
+			this.savemodelfilename = savemodelfilename;
 	}
 	public String getSavemodelfilename() {
 		return savemodelfilename;
