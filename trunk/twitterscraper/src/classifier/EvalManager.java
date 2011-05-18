@@ -46,8 +46,8 @@ public class EvalManager {
 				next.setNgrammin(Integer.parseInt(csv.get("ngrammin")));
 				next.setStopwords(Boolean.parseBoolean(csv.get("stopwords")));
 				next.setEvaluate(Boolean.parseBoolean(csv.get("evaluate")));
-				next.setModelFileName(csv.get("modelfilename"));
-				next.setSave(Boolean.parseBoolean(csv.get("save")));
+				next.setLoadModelFileName(csv.get("loadmodelfilename"));
+				next.setSavemodelfilename("savemodefilename");
 
 				// read results
 				String tmp;
@@ -183,8 +183,8 @@ public class EvalManager {
 				csvOutput.write(Integer.toString(cur.getNgrammin()));
 				csvOutput.write(Boolean.toString(cur.isStopwords()));
 				csvOutput.write(Boolean.toString(cur.isEvaluate()));
-				csvOutput.write(cur.getModelFileName());
-				csvOutput.write(Boolean.toString(cur.isSave()));
+				csvOutput.write(cur.getLoadModelFileName());
+				csvOutput.write(cur.getSavemodelfilename());
 
 				// Results - in same order as they are declared in EvalParams
 				csvOutput.write(Integer.toString(cur.getTotalInstances()));
@@ -217,7 +217,7 @@ public class EvalManager {
 	private void writeHeader(CsvWriter csvOutput) {
 
 		String[] header = { "in", "classifier", "loader", "tokenizer", "stemmer", "k", "features", "ngrammin",
-				"stopwords", "evaluate", "modelfilename","save",
+				"stopwords", "evaluate", "loadmodelfilename", "savemodelfilename",
 				// Output results
 				"totalInstances", "corclassified", "incclassified", "kappa", "meanabserr", "rmserr", "relabserr",
 				"rootrelsqerr", "coverage", "meanrelreg", "precision", "pctcorrect", "pctincorrect", "pctunclassified",
@@ -249,8 +249,11 @@ public class EvalManager {
 		if (!testcase.isStopwords()) {
 			args.add("-nostopwords");
 		}
-		if (testcase.getModelFileName() != null) {
-			args.add("-save=" + testcase.getModelFileName());
+		if (testcase.getLoadModelFileName() != null) {
+			args.add("-model=" + testcase.getLoadModelFileName());
+		}
+		if (testcase.getSavemodelfilename() != null) {
+			args.add("-save=" + testcase.getSavemodelfilename());
 		}
 
 		TweetClassifier tweetclass = new TweetClassifier(args.toArray(new String[] {}));

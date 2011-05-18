@@ -22,8 +22,8 @@ public class EvalRecord {
 	private int ngrammin = -1;
 	private boolean stopwords = true;
 	private boolean evaluate = true;
-	private String modelfilename = null;
-	private boolean save = false;
+	private String loadmodelfilename = null;
+	private String savemodelfilename = null;
 
 	
 	// Output results
@@ -110,12 +110,20 @@ public class EvalRecord {
 	public boolean isEvaluate() {
 		return evaluate;
 	}
-	public void setModelFileName(String modelFileName) {
-		this.modelfilename = modelFileName;
+	public void setLoadModelFileName(String loadModelFileName) {
+		this.loadmodelfilename= loadModelFileName;
 	}
-	public String getModelFileName() {
-		return modelfilename;
+	public String getLoadModelFileName() {
+		return loadmodelfilename;
 	}
+	
+	public void setSavemodelfilename(String savemodelfilename) {
+		this.savemodelfilename = savemodelfilename;
+	}
+	public String getSavemodelfilename() {
+		return savemodelfilename;
+	}
+	
 	public void setTotalInstances(int totalInstances) {
 		this.totalInstances = totalInstances;
 	}
@@ -200,12 +208,7 @@ public class EvalRecord {
 	public int getFn() {
 		return fn;
 	}
-	public void setSave(boolean save) {
-		this.save = save;
-	}
-	public boolean isSave() {
-		return save;
-	}
+	
 	public void readEval(Evaluation eval) {
 		
 		//// Output results
