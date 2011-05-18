@@ -47,7 +47,7 @@ public class EvalManager {
 				next.setStopwords(Boolean.parseBoolean(csv.get("stopwords")));
 				next.setEvaluate(Boolean.parseBoolean(csv.get("evaluate")));
 				next.setLoadModelFileName(csv.get("loadmodelfilename"));
-				next.setSavemodelfilename("savemodefilename");
+				next.setSavemodelfilename(csv.get("savemodelfilename"));
 
 				// read results
 				String tmp;

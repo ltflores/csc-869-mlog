@@ -118,9 +118,9 @@ public class EvalRecord {
 		return loadmodelfilename;
 	}
 	
-	public void setSavemodelfilename(String savemodelfilename) {
-		if (!savemodelfilename.isEmpty())
-			this.savemodelfilename = savemodelfilename;
+	public void setSavemodelfilename(String saveModelFileName) {
+		if (!saveModelFileName.isEmpty())
+			this.savemodelfilename = saveModelFileName;
 	}
 	public String getSavemodelfilename() {
 		return savemodelfilename;
