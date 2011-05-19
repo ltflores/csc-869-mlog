@@ -19,6 +19,10 @@ import weka.classifiers.Evaluation;
  */
 public class EvalManager {
 
+	private static boolean analyzeattribs = false;
+	private static String input;
+	private static String output;
+
 	/*
 	 * 
 	 * Scripts are in comma delimited file format each line has the following
@@ -269,20 +273,22 @@ public class EvalManager {
 
 	public static void main(String[] args) throws Exception {
 		try {
-			String input = "";
-			String output = "output.csv";
+			input = "";
+			output = "output.csv";
 			for (String arg : args) {
 
 				if (arg.startsWith("-input=")) {
 					input = arg.substring("-input=".length());
 				} else if (arg.startsWith("-output=")) {
 					output = arg.substring("-output=".length());
+				} else if (arg.startsWith("-analyzeattribs")) {
+					analyzeattribs = true;
 				}
 			}
 
 			EvalManager manager = new EvalManager();
 			if (input.length() != 0) {
-				manager.evaluate(input, output);
+				manager.evaluate(input, output, analyzeattribs);
 			} else {
 				// guess we are just writing a header.
 				manager.writeEmptyFile(output);
@@ -298,16 +304,58 @@ public class EvalManager {
 		writeEvalResults(filename, new Vector<EvalRecord>());
 	}
 
-	public void evaluate(String scriptfilename, String outputfilename) {
+	public void evaluate(String scriptfilename, String outputfilename, Boolean analattribs) {
 		Vector<EvalRecord> testcases = loadevalscript(scriptfilename);
 
+		// now write the output file.
+		String fileNameWithOutExt = stripExtension(scriptfilename);
+		
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssZ");
+		String stamp = format.format(new Date());
+		
+		String fileout = fileNameWithOutExt+"_attribs_"+stamp+".csv";
+		
 		Iterator<EvalRecord> it = testcases.iterator();
 		while (it.hasNext()) {
-			eval(it.next());
+			if (analattribs){
+				
+				analyze(it.next(), fileout);
+			}
+			else
+				eval(it.next());
 		}
 		// now they are all done, lets save the results
+		if (!analattribs)
+			writeEvalResults(outputfilename, testcases);
+	}
 
-		writeEvalResults(outputfilename, testcases);
+	private boolean analyze(EvalRecord testcase, String savefilename) {
+		List<String> args = new ArrayList<String>();
+		args.add("-in=" + testcase.getIn());
+		args.add("-loader=" + testcase.getLoader());
+		args.add("-tokenizer=" + testcase.getTokenizer());
+		args.add("-stemmer=" + testcase.getStemmer());
+		args.add("-features=" + testcase.getFeatures());
+		args.add("-ngrammin=" + testcase.getNgrammin());
+		args.add("-classifier=" + testcase.getClassifier());
+		args.add("-k=" + testcase.getK());
+		args.add("-results="+savefilename);
+		if (!testcase.isStopwords()) {
+			args.add("-nostopwords");
+		}
+		if (testcase.getLoadModelFileName() != null) {
+			args.add("-model=" + testcase.getLoadModelFileName());
+		}
+		if (testcase.getSavemodelfilename() != null) {
+			args.add("-save=" + testcase.getSavemodelfilename());
+		}
+
+		AttributeAnalyzer analyzer = new AttributeAnalyzer(args.toArray(new String[] {}));
+		
+		analyzer.runAnalysis();
+
+		return true;
+		
 	}
 
 }
