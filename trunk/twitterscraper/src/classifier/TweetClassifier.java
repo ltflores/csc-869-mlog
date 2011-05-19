@@ -273,12 +273,12 @@ public class TweetClassifier {
 			}
 			dataSentences.randomize(new Random(29390));
 		
-			ArffSaver saver = new ArffSaver();
+			/*ArffSaver saver = new ArffSaver();
 			saver.setInstances(dataSentences);
 			saver.setFile(new File("test.arff"));
 			saver.setDestination(new File("test.arff"));
 			saver.writeBatch();
-			
+			*/
 			/*BufferedWriter writer = new BufferedWriter(new FileWriter("attribs.txt"));
 			for(int i=0; i<dataSentences.numInstances(); i++) {
 				writer.write(dataSentences.attribute(i).name() + "\n");
@@ -400,7 +400,7 @@ public class TweetClassifier {
 	private void evaluateClassifier(Instances data, AbstractClassifier cls) {
 		try {
 			cls.setDebug(true);
-			Evaluation eval = new Evaluation(data);
+			this.eval = new Evaluation(data);
 			eval.evaluateModel(cls, data);
 			outputStatistics(data, cls, eval, false);
 		} catch (Exception e) {
