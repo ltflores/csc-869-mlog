@@ -31,28 +31,44 @@ public class TweetCounts {
 
 		files = path.listFiles(svnFilter);
 
-		System.out.println("folder,party,numUsers,tweets");
+		System.out.println("folder,Rep,RepTweets,Dem,DemTweets,Tot,Tottweets");
 		for (File file : files){
 			if (isTweetFolder(file)){
 				String folderName = file.toString().substring((path.toString()+File.separator).length());
 
 				File[] parties = file.listFiles(svnFilter);
+				
+				int numRep = 0;
+				int numDem = 0;
+				int numDemTweets = 0;
+				int numRepTweets = 0;
+				
 				for (File party : parties){
 					String partyName = party.toString().substring((file.toString()+File.separator).length());
 					File[] users = party.listFiles(svnFilter);
-					int numTweets = 0;
-
-					for (File user : users){
-						numTweets += count(user);
+					
+					if (partyName.contains("rep")){
+						numRep = users.length;
+						numRepTweets = getTweetCount(users);
+					} else if (partyName.contains("dem")){
+						numDem = users.length;
+						numDemTweets = getTweetCount(users);
 					}
-
-					System.out.println(folderName+","+partyName+","+users.length+","+numTweets);
-
 				}
+				System.out.println(folderName+","+numRep+","+numRepTweets+
+						","+numDem+","+numDemTweets+","+(numRep+numDem)+","+(numDemTweets+numRepTweets));
 			}
 
 		}
 
+	}
+	
+	private int getTweetCount(File[] users) throws Exception {
+		int numTweets = 0;
+		for (File user : users){
+			numTweets += count(user);
+		}
+		return numTweets;
 	}
 
 	private boolean isTweetFolder(File folder){
