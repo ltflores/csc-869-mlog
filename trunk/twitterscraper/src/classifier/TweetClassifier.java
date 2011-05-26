@@ -15,11 +15,15 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import weka.attributeSelection.CfsSubsetEval;
 import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.evaluation.NominalPrediction;
+import weka.classifiers.functions.*;
+import weka.classifiers.*;
+import weka.classifiers.meta.*;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.classifiers.trees.J48;
 import weka.core.Attribute;
@@ -47,7 +51,7 @@ public class TweetClassifier {
 	public static boolean debug = false;
 
 	enum ClassifierType {
-		BAYES, J48
+		BAYES, J48, SVM, NET, ADABOOST, BAGGING
 	}
 
 	enum LoaderType {
@@ -79,6 +83,8 @@ public class TweetClassifier {
 	private Evaluation eval;
 
 	private FastVector forcedAttributes;
+
+	private boolean attribselect = true;
 
 	public static void main(String[] args) throws Exception {
 		TweetClassifier tweetclass = new TweetClassifier(args);
@@ -118,6 +124,8 @@ public class TweetClassifier {
 				noeval = true;
 			} else if(arg.startsWith("-ngrammin=")){
                 ngrammin = Integer.parseInt(arg.substring("-ngrammin=".length()));
+            } else if(arg.startsWith("-attribselect=")){
+                attribselect = Boolean.parseBoolean(arg.substring("-attribselect=".length()));
             } else {
             	System.out.println("Unknown command line arument: " + arg);
             	System.exit(-1);
@@ -140,6 +148,14 @@ public class TweetClassifier {
 			classifierType = ClassifierType.BAYES;
 		} else if (classifierType.equals("J48")) {
 			classifierType = ClassifierType.J48;
+		} else if (classifierType.equals("SVM")) {
+			classifierType = ClassifierType.SVM;
+		} else if (classifierType.equals("ADABOOST")) {
+			classifierType = ClassifierType.ADABOOST;
+		} else if (classifierType.equals("NET")) {
+			classifierType = ClassifierType.NET;
+		} else if (classifierType.equals("BAGGING")) {
+			classifierType = ClassifierType.BAGGING;
 		}
 		System.out.println("Using -classifier=" + classifierType);
 
@@ -263,6 +279,7 @@ public class TweetClassifier {
 	private Instances loadTweets() {
 		try {
 			Instances dataRaw = loadRawData();
+			
 			Instances dataSentences = transformData(dataRaw);
 
 			if (debug) {
@@ -292,6 +309,8 @@ public class TweetClassifier {
 		}
 		return null;
 	}
+
+	
 
 	private Instances loadRawData() throws IOException {
 		CustomTextDirectoryLoader loader = null;
@@ -359,6 +378,22 @@ public class TweetClassifier {
 					break;
 				case J48:
 					classifier = new J48();
+					break;
+				case SVM:
+					classifier = new SMO();
+					break;
+				case ADABOOST:
+					classifier = new AdaBoostM1();
+					break;
+				case BAGGING:
+					classifier = new Bagging();
+					break;
+				case NET: 
+					classifier = new VotedPerceptron();
+					break;
+				default:
+					classifier = new NaiveBayes();
+					break;
 			}
 
 			classifier.setDebug(true);
